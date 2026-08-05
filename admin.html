@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gawad Parangal — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mrs+Saint+Delafield&family=Questrial&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#F5EFE7; --ivory-card:#FBF8F2;
+    --gold:#C89B3C; --gold-deep:#A87F2E; --gold-soft:#EBD8A6;
+    --black:#111111; --black-soft: rgba(17,17,17,0.64);
+    --danger:#8a2b2b; --ok:#2f5d3a;
+    --font-script:'Mrs Saint Delafield', cursive;
+    --font-sans:'Century Gothic', Questrial, 'Poppins', sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  .hide{ display:none !important; }
+  html,body{ margin:0; padding:0; }
+  body{ background:var(--ivory); color:var(--black); font-family:var(--font-sans); min-height:100vh; }
+  .page{ min-height:100vh; padding: clamp(20px, 5vw, 56px) 16px; }
+  .wrap{ max-width:900px; margin:0 auto; }
+  .framed{ position:relative; background:var(--ivory-card); border:1px solid var(--gold); outline:1px solid var(--gold); outline-offset:7px; padding: clamp(22px, 5vw, 44px); }
+  .eyebrow{ font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold-deep); text-align:center; margin:0 0 6px; font-weight:700; }
+  .script-title{ font-family:var(--font-script); font-weight:400; font-size:38px; text-align:center; margin:0 0 20px; color:var(--black); }
+
+  .gate{ max-width:340px; margin:30px auto; text-align:center; }
+  .gate input{ width:100%; text-align:center; font-size:16px; padding:12px; border:1px solid var(--gold-soft); background:var(--ivory); margin-bottom:14px; outline:none; }
+  .gate input:focus{ border-color:var(--gold-deep); }
+  .gate .err{ display:none; font-size:12.5px; color:var(--danger); margin-bottom:12px; }
+  .gate .err.show{ display:block; }
+  button.cta{ width:100%; font-family:var(--font-sans); font-size:13px; letter-spacing:.2em; text-transform:uppercase; font-weight:700; background:var(--black); color:var(--gold-soft); border:1px solid var(--black); padding:14px 20px; cursor:pointer; }
+  button.cta:hover{ background:var(--gold); border-color:var(--gold); color:var(--black); }
+
+  .toolbar{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+  .toolbar button{ font-size:11.5px; letter-spacing:.1em; text-transform:uppercase; padding:8px 14px; border:1px solid var(--black); background:transparent; color:var(--black); cursor:pointer; }
+  .summary{ font-size:12.5px; color:var(--black-soft); text-align:center; margin-bottom:16px; }
+  .tabs{ display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap; justify-content:center; }
+  .tab{ font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; padding:8px 14px; border:1px solid var(--gold-soft); background:var(--ivory); cursor:pointer; color:var(--black-soft); }
+  .tab.active{ background:var(--black); color:var(--gold-soft); border-color:var(--black); }
+
+  .card{ border:1px solid var(--gold-soft); background:var(--ivory); padding:18px 20px; margin-bottom:14px; }
+  .card .top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; }
+  .card .name{ font-weight:700; font-size:16px; }
+  .card .meta{ font-size:12.5px; color:var(--black-soft); margin-top:2px; }
+  .badge{ font-size:10px; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; font-weight:700; white-space:nowrap; }
+  .badge.pending{ background:var(--gold-soft); color:var(--black); }
+  .badge.received{ background:#8a6d1f; color:#fff; }
+  .badge.confirmed{ background:var(--ok); color:#fff; }
+  .badge.rejected{ background:var(--danger); color:#fff; }
+  .badge.waitlist{ background:var(--black); color:var(--gold-soft); }
+  .details{ margin-top:10px; font-size:13.5px; line-height:1.65; }
+  .details b{ color:var(--black-soft); font-weight:700; }
+  .details a{ color:var(--gold-deep); }
+  .actions{ margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+  .actions button{ font-size:11px; letter-spacing:.06em; text-transform:uppercase; padding:8px 13px; border:1px solid var(--black); background:transparent; color:var(--black); cursor:pointer; font-weight:700; }
+  .actions button:disabled{ opacity:.4; cursor:not-allowed; }
+  .actions button.received:hover{ background:#8a6d1f; border-color:#8a6d1f; color:#fff; }
+  .actions button.confirmed:hover{ background:var(--ok); border-color:var(--ok); color:#fff; }
+  .actions button.rejected:hover{ background:var(--danger); border-color:var(--danger); color:#fff; }
+  .actions button.waitlist:hover{ background:var(--black); color:var(--gold-soft); }
+  .empty-note{ text-align:center; color:var(--black-soft); font-size:13.5px; padding:30px 0; }
+  .loading-note{ text-align:center; color:var(--black-soft); font-size:13px; padding:20px 0; }
+  .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--black); color:var(--gold-soft); padding:12px 20px; font-size:13px; display:none; }
+  .toast.show{ display:block; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="wrap">
+    <div class="framed">
+      <p class="eyebrow">Sangguniang Kabataan ng Alapan II-A</p>
+      <h1 class="script-title">Admin</h1>
+
+      <div class="gate" id="gate">
+        <input type="password" id="passInput" placeholder="Enter passcode">
+        <div class="err" id="gateErr">Incorrect passcode, or the server isn't set up yet.</div>
+        <button class="cta" id="loginBtn">Enter</button>
+      </div>
+
+      <div id="dash" class="hide">
+        <div class="toolbar">
+          <button id="refreshBtn">Refresh</button>
+        </div>
+        <div class="summary" id="summary">Loading…</div>
+        <div class="tabs">
+          <button class="tab active" data-filter="all">All</button>
+          <button class="tab" data-filter="pending">Pending</button>
+          <button class="tab" data-filter="received">Received</button>
+          <button class="tab" data-filter="confirmed">Confirmed</button>
+          <button class="tab" data-filter="rejected">Rejected</button>
+          <button class="tab" data-filter="waitlist">Waitlist</button>
+        </div>
+        <div id="list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let passcode = null;
+  let allRegistrants = [];
+  let currentFilter = 'all';
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  function escapeHtml(str){
+    return String(str == null ? '' : str).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', attemptLogin);
+  document.getElementById('passInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') attemptLogin();
+  });
+
+  async function attemptLogin(){
+    const val = document.getElementById('passInput').value;
+    const err = document.getElementById('gateErr');
+    err.classList.remove('show');
+    try{
+      const res = await fetch('/.netlify/functions/admin-list', {
+        headers: { 'x-admin-passcode': val }
+      });
+      if(res.status === 401){
+        err.textContent = 'Incorrect passcode.';
+        err.classList.add('show');
+        return;
+      }
+      if(!res.ok){
+        const body = await res.json().catch(() => ({}));
+        err.textContent = body.error || ('Server error (' + res.status + ').');
+        err.classList.add('show');
+        return;
+      }
+      const data = await res.json();
+      passcode = val;
+      allRegistrants = data.registrants || [];
+      document.getElementById('gate').classList.add('hide');
+      document.getElementById('dash').classList.remove('hide');
+      render();
+    }catch(e){
+      err.textContent = 'Could not reach the server: ' + e.message;
+      err.classList.add('show');
+    }
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', async function(){
+    document.getElementById('summary').textContent = 'Refreshing…';
+    try{
+      const res = await fetch('/.netlify/functions/admin-list', {
+        headers: { 'x-admin-passcode': passcode }
+      });
+      const data = await res.json();
+      allRegistrants = data.registrants || [];
+      render();
+    }catch(e){
+      showToast('Refresh failed: ' + e.message);
+    }
+  });
+
+  document.querySelectorAll('.tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentFilter = tab.dataset.filter;
+      render();
+    });
+  });
+
+  function render(){
+    const list = document.getElementById('list');
+    const filtered = currentFilter === 'all'
+      ? allRegistrants
+      : allRegistrants.filter(r => r.status === currentFilter);
+
+    document.getElementById('summary').textContent =
+      allRegistrants.length + ' total \u00b7 ' +
+      ['pending','received','confirmed','rejected','waitlist'].map(function(s){
+        return allRegistrants.filter(r => r.status === s).length + ' ' + s;
+      }).join(' \u00b7 ');
+
+    if(filtered.length === 0){
+      list.innerHTML = '<p class="empty-note">No registrants here yet.</p>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(function(r){
+      const licensureLine = r.licensureOf ? ('<br><b>Licensure:</b> ' + escapeHtml(r.licensureOf)) : '';
+      const fileLinks = [
+        r.validIdUrl ? '<a href="' + r.validIdUrl + '" target="_blank">Valid ID</a>' : null,
+        r.proofOfAwardUrl ? '<a href="' + r.proofOfAwardUrl + '" target="_blank">Proof of Award</a>' : null,
+        r.formalPhotoUrl ? '<a href="' + r.formalPhotoUrl + '" target="_blank">Formal Photo</a>' : null
+      ].filter(Boolean).join(' \u00b7 ') || 'No files found';
+
+      return '<div class="card" data-id="' + r.id + '">' +
+        '<div class="top">' +
+          '<div><div class="name">' + escapeHtml(r.name) + '</div>' +
+          '<div class="meta">' + escapeHtml(r.email) + ' \u00b7 ' + escapeHtml(r.phone) + '</div></div>' +
+          '<span class="badge ' + r.status + '">' + r.status + '</span>' +
+        '</div>' +
+        '<div class="details">' +
+          '<b>Address:</b> ' + escapeHtml(r.address) + '<br>' +
+          '<b>Year Level:</b> ' + escapeHtml(r.yearLevel) + '<br>' +
+          '<b>Award:</b> ' + escapeHtml(r.award) + licensureLine + '<br>' +
+          '<b>Date of Award:</b> ' + escapeHtml(r.awardDate) + '<br>' +
+          '<b>Files:</b> ' + fileLinks + '<br>' +
+          '<b>Submitted:</b> ' + new Date(r.submittedAt).toLocaleString() +
+        '</div>' +
+        '<div class="actions">' +
+          '<button class="received" data-action="received">Mark Received</button>' +
+          '<button class="confirmed" data-action="confirmed">Confirm &amp; Invite</button>' +
+          '<button class="rejected" data-action="rejected">Reject</button>' +
+          '<button class="waitlist" data-action="waitlist">Waitlist</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    list.querySelectorAll('.card').forEach(function(card){
+      const id = card.dataset.id;
+      const reg = allRegistrants.find(r => r.id === id);
+      card.querySelectorAll('.actions button').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          runAction(reg, btn.dataset.action, card);
+        });
+      });
+    });
+  }
+
+  async function runAction(reg, action, card){
+    const buttons = card.querySelectorAll('.actions button');
+    buttons.forEach(b => b.disabled = true);
+    try{
+      const res = await fetch('/.netlify/functions/admin-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-passcode': passcode },
+        body: JSON.stringify({ submissionId: reg.id, action: action, name: reg.name, email: reg.email })
+      });
+      const data = await res.json();
+      if(!res.ok){
+        showToast('Failed: ' + (data.error || res.status));
+        buttons.forEach(b => b.disabled = false);
+        return;
+      }
+      reg.status = action;
+      showToast(reg.name + ' marked ' + action + ' \u2014 email sent.');
+      render();
+    }catch(e){
+      showToast('Failed: ' + e.message);
+      buttons.forEach(b => b.disabled = false);
+    }
+  }
+</script>
+</body>
+</html>
