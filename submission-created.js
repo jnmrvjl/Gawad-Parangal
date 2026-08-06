@@ -1,4 +1,4 @@
-// netlify/functions/submission-created.js
+netlify/functions/submission-created.js
 //
 // Netlify automatically calls a function with this exact filename whenever a
 // new Forms submission comes in — no manual trigger setup needed for this
