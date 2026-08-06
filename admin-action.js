@@ -1,4 +1,4 @@
-// netlify/functions/admin-action.js
+netlify/functions/admin-action.js
 //
 // Called by admin.html when the admin clicks Received / Confirmed /
 // Rejected / Waitlist for a registrant. Sends the matching email through
