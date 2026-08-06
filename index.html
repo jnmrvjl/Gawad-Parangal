@@ -248,6 +248,15 @@
         <p>Your registration and documents have been sent for review.</p>
         <div class="disclaimer">This is a submission receipt, not a confirmed invitation. The organizer will verify your address, award date, and documents before confirming your seat — you'll hear back by email or phone. Only the first 50 verified registrants will be confirmed.</div>
       </div>
+
+      <div class="confirm" id="closedBox">
+        <div class="checkmark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#C89B3C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg>
+        </div>
+        <h2>Registration Is Now Closed</h2>
+        <p>Thank you for your interest in Gawad Parangal. We are no longer accepting new registrations at this time.</p>
+        <div class="disclaimer">If you believe this is a mistake, or have questions about your existing registration, please reach out to the organizers directly.</div>
+      </div>
     </div>
     <footer class="foot">Registration closes once 50 verified registrants are confirmed</footer>
   </div>
@@ -269,10 +278,33 @@
   const pageInvite = document.getElementById('page-invite');
   const pageRegister = document.getElementById('page-register');
   const regForm = document.getElementById('regForm');
+  const closedBox = document.getElementById('closedBox');
+
+  // Internal-only cap check. Never surfaces a count to the visitor —
+  // just whether registration is still open. Fails open (assumes open)
+  // if the check can't complete, so a network hiccup never locks out a
+  // real registrant.
+  let registrationOpen = true;
+  async function refreshRegistrationStatus(){
+    try{
+      const res = await fetch('/.netlify/functions/registration-status');
+      if(res.ok){
+        const data = await res.json();
+        registrationOpen = data.open !== false;
+      }
+    }catch(e){
+      // fail open
+    }
+  }
+  refreshRegistrationStatus();
 
   document.getElementById('goRegister').addEventListener('click', function(){
     pageInvite.classList.add('hide');
     pageRegister.classList.remove('hide');
+    if(!registrationOpen){
+      regForm.classList.add('hide');
+      closedBox.classList.add('show');
+    }
     window.scrollTo(0,0);
   });
   document.getElementById('backLink').addEventListener('click', function(e){
@@ -389,6 +421,16 @@
     });
 
     if(!ok){
+      return;
+    }
+
+    // One more internal-only check right before sending, in case this
+    // tab was left open since before the cap was reached. Still no
+    // number is ever shown — just closes the form if it's now full.
+    await refreshRegistrationStatus();
+    if(!registrationOpen){
+      regForm.classList.add('hide');
+      closedBox.classList.add('show');
       return;
     }
 
