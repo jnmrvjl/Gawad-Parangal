@@ -1,4 +1,4 @@
-// netlify/functions/admin-list.js
+netlify/functions/admin-list.js
 //
 // Called by admin.html to load the registrant list. Reads submissions from
 // Netlify's own Forms API (needs NETLIFY_API_TOKEN + NETLIFY_SITE_ID), then
